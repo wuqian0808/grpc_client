@@ -1,5 +1,6 @@
 package com.wq.grpc.nameresolver;
 
+import com.wq.grpc.prop.BPMGrpcChannelProperty;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
@@ -23,16 +24,17 @@ public class BPMNameResolverProvider extends NameResolverProvider {
 
     private static final Pattern PATTERN_COMMA = Pattern.compile(",");
 
+    public BPMNameResolverProvider(){}
 //    @Nullable
 //    @Override
 //    @Deprecated
 //    // TODO: Update this to grpc-java 1.21 in v2.6.0
-//    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper args) {
-//        if (STATIC_SCHEME.equals(targetUri.getScheme())) {
-//            return of(targetUri.getAuthority(), args.getDefaultPort());
-//        }
-//        return null;
-//    }
+    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper args) {
+        if (STATIC_SCHEME.equals(targetUri.getScheme())) {
+            return of(targetUri.getAuthority(), args.getDefaultPort());
+        }
+        return null;
+    }
 
     private NameResolver of(final String targetAuthority, int defaultPort) {
         requireNonNull(targetAuthority, "targetAuthority");

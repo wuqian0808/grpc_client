@@ -11,6 +11,8 @@ public class ProcessClient implements ClientInterface{
 
     private GreetRpcServiceGrpc.GreetRpcServiceBlockingStub stub;
 
+    public ProcessClient(){}
+
     public ProcessClient(GreetRpcServiceGrpc.GreetRpcServiceBlockingStub stub){
         this.stub = stub;
     }

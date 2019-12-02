@@ -62,11 +62,11 @@ public class BPMNettyChannelFactory extends AbstractChannelFactory<NettyChannelB
                 final String certificateChain =
                         requireNonNull(security.getCertificateChain(), "certificateChain not configured");
                 final String privateKey = requireNonNull(security.getPrivateKey(), "privateKey not configured");
-                try {
-                    InputStream certificateChainStream = new FileInputStream(new File(certificateChain));
-                    InputStream privateKeyStream = new FileInputStream(new File(privateKey));
-                    sslContextBuilder.keyManager(certificateChainStream,privateKeyStream,
-                                security.getPrivateKeyPassword());
+
+                try {InputStream certificateChainStream =  new FileInputStream(new File(certificateChain));
+                     InputStream privateKeyStream = new FileInputStream(new File(privateKey));
+                    sslContextBuilder.keyManager(certificateChainStream, privateKeyStream,
+                            security.getPrivateKeyPassword());
                 } catch (IOException | RuntimeException e) {
                     throw new IllegalArgumentException("Failed to create SSLContext (PK/Cert)", e);
                 }

@@ -1,5 +1,6 @@
 package com.wq.grpc.nameresolver;
 
+import com.wq.grpc.prop.BPMGrpcChannelProperty;
 import com.wq.grpc.prop.BPMGrpcChannelsProperty;
 import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
@@ -32,6 +33,37 @@ public class MappedNameResolverFactory extends NameResolver.Factory {
         this.delegate = requireNonNull(delegate, "delegate");
         this.defaultUriMapper = requireNonNull(defaultUriMapper, "defaultUriMapper");
     }
+
+    public NameResolver newNameResolver(final URI targetUri, final io.grpc.NameResolver.Helper helper) {
+        final String clientName = targetUri.toString();
+        final BPMGrpcChannelProperty clientConfig = this.config.getChannel(clientName);
+        URI remappedUri = clientConfig.getAddress();
+        if (remappedUri == null) {
+            remappedUri = this.defaultUriMapper.apply(clientName);
+            if (remappedUri == null) {
+                throw new IllegalStateException("No targetUri provided for '" + clientName + "'"
+                        + " and defaultUri mapper returned null.");
+            }
+        }
+        log.debug("Remapping target URI for {} to {} via {}", clientName, remappedUri, this.delegate);
+        return this.delegate.newNameResolver(remappedUri, helper);
+    }
+
+    public NameResolver newNameResolver(URI targetUri, final NameResolver.Args args) {
+        final String clientName = targetUri.toString();
+        final BPMGrpcChannelProperty clientConfig = this.config.getChannel(clientName);
+        URI remappedUri = clientConfig.getAddress();
+        if (remappedUri == null) {
+            remappedUri = this.defaultUriMapper.apply(clientName);
+            if (remappedUri == null) {
+                throw new IllegalStateException("No targetUri provided for '" + clientName + "'"
+                        + " and defaultUri mapper returned null.");
+            }
+        }
+        log.debug("Remapping target URI for {} to {} via {}", clientName, remappedUri, this.delegate);
+        return this.delegate.newNameResolver(remappedUri, args);
+    }
+
 
     @Override
     public String getDefaultScheme() {

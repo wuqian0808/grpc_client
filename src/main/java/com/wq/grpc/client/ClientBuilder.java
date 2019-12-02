@@ -8,12 +8,13 @@ import com.wq.grpc.nameresolver.BPMNameResolverProvider;
 import com.wq.grpc.nameresolver.MappedNameResolverFactory;
 import com.wq.grpc.prop.BPMGrpcChannelProperty;
 import com.wq.grpc.prop.BPMGrpcChannelsProperty;
-import com.wq.grpc.security.CallCredentialsHelper;
+import com.wq.grpc.security.CallCredentialHelper;
 import com.wq.grpc.util.PropertyUtil;
 import com.wq.grpc.util.ReflectionUtils;
 import io.grpc.CallCredentials;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
+import io.grpc.NameResolverRegistry;
 import io.grpc.stub.AbstractStub;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +30,7 @@ public class ClientBuilder {
     private BPMNettyChannelFactory channelFactory;
     public static final String GLOBAL_PROPERTIES_KEY = "GLOBAL";
     private StubTransformer stubTransformer;
+    private CallCredentials callCredentials;
 
     public ClientBuilder(BPMGrpcChannelsProperty channelsProperty){
         this.channelsProperty = channelsProperty;
@@ -53,11 +55,23 @@ public class ClientBuilder {
                     BPMNameResolverProvider.STATIC_DEFAULT_URI_MAPPER);
             /**TODO, How to get from registry**/
             BPMGrpcClientInterceptorRegistry registry = new BPMGrpcClientInterceptorRegistry();
+            NameResolverRegistry.getDefaultRegistry().register(new BPMNameResolverProvider());
             List<BPMGrpcChannelConfigurer> channelConfigurers = Collections.emptyList();
             channelFactory = new BPMNettyChannelFactory(channelsProperty, nameResolverFactory,
                             registry, channelConfigurers);
         }
         return channelFactory;
+    }
+
+    private CallCredentials getCallCredentials(){
+        if(callCredentials == null){
+            callCredentials = CallCredentialHelper.basicAuth("wq", "wq");
+        }
+        return callCredentials;
+    }
+
+    private StubTransformer getCredentialStubTransformer(){
+            return CallCredentialHelper.fixedCredentialsStubTransformer(getCallCredentials());
     }
 
     private ClientInterface injectStubIntoClient(String name, BPMGrpcChannelProperty property, Channel channel) throws Exception{
@@ -85,8 +99,8 @@ public class ClientBuilder {
         if(stubTransformer == null) {
             BPMGrpcChannelProperty globalChannel = PropertyUtil.getPropertiesForChannel(channelsProperty, GLOBAL_PROPERTIES_KEY);
             if (globalChannel.getSecurity().getBasicAuthEnabled()) {
-                CallCredentials callCredentials = CallCredentialsHelper.basicAuth(globalChannel.getSecurity().getUser(), globalChannel.getSecurity().getPwd());
-                stubTransformer =  CallCredentialsHelper.fixedCredentialsStubTransformer(callCredentials);
+                CallCredentials callCredentials = CallCredentialHelper.basicAuth(globalChannel.getSecurity().getUser(), globalChannel.getSecurity().getPwd());
+                stubTransformer =  CallCredentialHelper.fixedCredentialsStubTransformer(callCredentials);
             }
         }
         return stubTransformer;

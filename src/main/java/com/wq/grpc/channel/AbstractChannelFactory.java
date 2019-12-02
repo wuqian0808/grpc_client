@@ -64,20 +64,7 @@ public abstract class AbstractChannelFactory <T extends ManagedChannelBuilder<T>
 
     protected void configure(final T builder, final String name) {
         final BPMGrpcChannelProperty property = PropertyUtil.getPropertiesForChannel(this.properties, name);
-        final Security security = property.getSecurity();
-        if (property.isEnableKeepAlive()) {
-            builder.keepAliveTime(property.getKeepAliveTime().toNanos(), TimeUnit.NANOSECONDS)
-                    .keepAliveTimeout(property.getKeepAliveTimeout().toNanos(), TimeUnit.NANOSECONDS)
-                    .keepAliveWithoutCalls(property.isKeepAliveWithoutCalls());
-        }
-        if (property.getNegotiationType() != NegotiationType.TLS // non-default
-                || !Strings.isNullOrEmpty(security.getAuthorityOverride())
-                || security.getCertificateChain() != null
-                || security.getPrivateKey() != null
-                || security.getTrustCertCollection() != null) {
-            throw new IllegalStateException(
-                    "Security is configured but this implementation does not support security!");
-        }
+        configureSecurity(builder, name);
         final int maxInboundMessageSize = property.getMaxInboundMessageSize();
         if (maxInboundMessageSize > 0 ) {
             builder.maxInboundMessageSize(maxInboundMessageSize);

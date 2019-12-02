@@ -19,5 +19,5 @@ public class BPMGrpcStubBuilder {
         return instance;
     }
 
-    public AbstractStub getGrpcClient
+//    public AbstractStub getGrpcClient
 }

@@ -3,6 +3,7 @@ package com.wq.grpc.client;
 import com.wq.grpc.prop.BPMGrpcChannelProperty;
 import com.wq.grpc.prop.BPMGrpcChannelsProperty;
 import com.wq.grpc.prop.NegotiationType;
+import com.wq.grpc.prop.Security;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashMap;
@@ -17,18 +18,20 @@ public class ClientFactory {
 
     private ClientFactory(){}
 
-    public static ClientFactory getInstance() throws Exception{
+    public synchronized static ClientFactory getInstance() throws Exception{
         /**Read settings from specific path**/
         BPMGrpcChannelsProperty properties = new BPMGrpcChannelsProperty();
         BPMGrpcChannelProperty gloabalChannel = new BPMGrpcChannelProperty();
         gloabalChannel.setEnableKeepAlive(true);
         gloabalChannel.setNegotiationType(NegotiationType.TLS);
-        gloabalChannel.getSecurity().setAuthorityOverride("hd001.statestreet.com");
-        gloabalChannel.getSecurity().setClientAuthEnabled(true);
-        gloabalChannel.getSecurity().setCertificateChain("C:/JAVAProject/IJWorkSpace/grpc/non-spring-grpc-client/src/main/resources/server.crt");
-        gloabalChannel.getSecurity().setTrustCertCollection("C:/JAVAProject/IJWorkSpace/grpc/non-spring-grpc-client/src/main/resources/server.crt");
-        gloabalChannel.getSecurity().setPrivateKey("C:/JAVAProject/IJWorkSpace/grpc/non-spring-grpc-client/src/main/resources/server.key");
-        gloabalChannel.getSecurity().setBasicAuthEnabled(true, "wq", "wq");
+        Security security = new Security();
+        security.setAuthorityOverride("hd001.statestreet.com");
+        security.setClientAuthEnabled(true);
+        security.setCertificateChain("C:/JAVAProject/IJWorkSpace/grpc/non-spring-grpc-client/src/main/resources/server.crt");
+        security.setTrustCertCollection("C:/JAVAProject/IJWorkSpace/grpc/non-spring-grpc-client/src/main/resources/server.crt");
+        security.setPrivateKey("C:/JAVAProject/IJWorkSpace/grpc/non-spring-grpc-client/src/main/resources/server.key");
+        security.setBasicAuthEnabled(true, "wq", "wq");
+        gloabalChannel.setSecurity(security);
         properties.setGlobalProperty(gloabalChannel);
         BPMGrpcChannelProperty dataChannel = new BPMGrpcChannelProperty();
         dataChannel.setClientClass(DataClient.class.getName());
@@ -40,7 +43,6 @@ public class ClientFactory {
         properties.addChannel("process", processChannel);
         //init client
         if(clientFactory==null){
-            synchronized (clientFactory) {
                 clientFactory = new ClientFactory();
                 clientFactory.clients = new LinkedHashMap<String, ClientInterface>();
                 ClientBuilder clientBuilder = new ClientBuilder(properties);
@@ -52,7 +54,6 @@ public class ClientFactory {
                         clientFactory.clients.put(clientName, clientInterface);
                     }
                 }
-            }
         }
         return clientFactory;
     }

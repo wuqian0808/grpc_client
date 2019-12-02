@@ -1,14 +1,16 @@
 package com.wq.grpc.client;
 
+import com.wq.grpc.model.Greet;
+import com.wq.grpc.model.GreetRpcServiceGrpc.GreetRpcServiceBlockingStub;
+import lombok.extern.slf4j.Slf4j;
 import com.google.protobuf.Any;
 import com.google.protobuf.StringValue;
-import com.wq.grpc.model.Greet;
-import com.wq.grpc.model.GreetRpcServiceGrpc.*;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DataClient implements ClientInterface{
     private GreetRpcServiceBlockingStub stub;
+
+    public DataClient(){}
 
     public DataClient(GreetRpcServiceBlockingStub stub){
         this.stub = stub;

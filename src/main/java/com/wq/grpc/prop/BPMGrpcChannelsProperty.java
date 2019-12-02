@@ -14,7 +14,7 @@ public class BPMGrpcChannelsProperty {
     private Map<String, BPMGrpcChannelProperty> client = new ConcurrentHashMap();
 
     public void setGlobalProperty(BPMGrpcChannelProperty channelProperty){
-
+        client.put(GLOBAL_PROPERTIES_KEY, channelProperty);
     }
 
     public void addChannel(String name, BPMGrpcChannelProperty property){

@@ -1,11 +1,13 @@
 package com.wq.grpc.nameresolver;
 
 import com.google.common.collect.ImmutableList;
+import com.wq.grpc.prop.BPMGrpcChannelProperty;
 import io.grpc.Attributes;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import lombok.ToString;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
@@ -29,6 +31,8 @@ public class BPMNameResolver extends NameResolver {
         }
         this.targets = ImmutableList.copyOf(targets);
     }
+
+
 
     @Override
     public String getServiceAuthority() {

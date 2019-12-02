@@ -25,7 +25,7 @@ public class BPMGrpcChannelProperty {
     private static final NegotiationType DEFAULT_NEGOTIATION_TYPE = NegotiationType.TLS;
     private Boolean fullStreamDecompression;
     private static final boolean DEFAULT_FULL_STREAM_DECOMPRESSION = false;
-    private final Security security = new Security();
+    private Security security;
     private String clientClass; //Store client class name
 
     public URI getAddress() {
@@ -111,6 +111,10 @@ public class BPMGrpcChannelProperty {
         this.negotiationType = negotiationType;
     }
 
+    public void setSecurity(Security security) {
+        this.security = security;
+    }
+
     public Security getSecurity() {
         return this.security;
     }
@@ -157,6 +161,8 @@ public class BPMGrpcChannelProperty {
         if(this.clientClass == null){
             this.clientClass = config.clientClass;
         }
-        this.security.copyAllValueIfNullFrom(config.security);
+        if(this.security == null) {
+            this.security = config.security;
+        }
     }
 }
